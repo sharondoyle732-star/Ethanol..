@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>التنبؤ بإنتاج الإيثانول</title>
+
+<style>
+body {
+    font-family: 'Segoe UI', Tahoma;
+    direction: rtl;
+    text-align: center;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    margin: 0;
+    color: #333;
+}
+
+.container {
+    background: white;
+    padding: 30px;
+    margin: 80px auto;
+    width: 380px;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    animation: fadeIn 1s ease;
+}
+
+h2 {
+    margin-bottom: 20px;
+    color: #2a5298;
+}
+
+input {
+    width: 90%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+input:focus {
+    border-color: #2a5298;
+    outline: none;
+    box-shadow: 0 0 8px rgba(42,82,152,0.3);
+}
+
+button {
+    padding: 12px 25px;
+    border: none;
+    background: linear-gradient(135deg, #00c6ff, #0072ff);
+    color: white;
+    border-radius: 25px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-top: 10px;
+    transition: 0.3s;
+}
+
+button:hover {
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
+
+.result {
+    margin-top: 25px;
+    font-size: 22px;
+    font-weight: bold;
+    color: #1e3c72;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: translateY(20px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+    <h2>🔬 التنبؤ بإنتاج الإيثانول</h2>
+
+    <input type="number" id="temp" placeholder="درجة الحرارة (°C)">
+    <input type="number" id="catalyst" placeholder="كمية المحفز (ml)">
+    <input type="number" id="yeast" placeholder="كمية الخميرة (g)">
+    <input type="number" id="time" placeholder="الوقت (يوم)">
+
+    <br>
+    <button onclick="predict()">احسب الآن</button>
+
+    <div class="result" id="output"></div>
+</div>
+
+<script>
+
+function predict() {
+    let temp = parseFloat(document.getElementById("temp").value);
+    let catalyst = parseFloat(document.getElementById("catalyst").value);
+    let yeast = parseFloat(document.getElementById("yeast").value);
+    let time = parseFloat(document.getElementById("time").value);
+
+    if (isNaN(temp) || isNaN(catalyst) || isNaN(yeast) || isNaN(time)) {
+        document.getElementById("output").innerHTML = "أدخل كل القيم";
+        return;
+    }
+
+    let tempEffect = 31 * Math.exp(-Math.pow((temp - 35)/10, 2));
+    let catalystEffect = 30 * Math.exp(-Math.pow((catalyst - 9)/3, 2));
+    let yeastEffect = 4 * yeast + 5;
+    let timeEffect = 60 * (1 - Math.exp(-time / 3));
+
+    let ethanol = (tempEffect + catalystEffect + yeastEffect + timeEffect) / 4;
+
+    document.getElementById("output").innerHTML =
+        "✨ النتيجة: " + ethanol.toFixed(2) + " %";
+}
+
+</script>
+
+</body>
+</html>
