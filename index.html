@@ -2,119 +2,230 @@
 <html lang="ar">
 <head>
 <meta charset="UTF-8">
-<title>التنبؤ بإنتاج الإيثانول</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BioEthanol Lab</title>
 
 <style>
-body {
-    font-family: 'Segoe UI', Tahoma;
-    direction: rtl;
-    text-align: center;
-    background: linear-gradient(135deg, #1e3c72, #2a5298);
-    margin: 0;
-    color: #333;
+body{
+  margin:0;
+  font-family:Segoe UI;
+  direction:rtl;
+  color:white;
+  background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+  overflow:hidden;
 }
 
-.container {
-    background: white;
-    padding: 30px;
-    margin: 80px auto;
-    width: 380px;
-    border-radius: 20px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    animation: fadeIn 1s ease;
+/* الخلفية */
+canvas{
+  position:fixed;
+  top:0;
+  left:0;
+  z-index:-1;
 }
 
-h2 {
-    margin-bottom: 20px;
-    color: #2a5298;
+/* الكرت */
+.container{
+  width:420px;
+  margin:60px auto;
+  padding:30px;
+  border-radius:25px;
+  backdrop-filter: blur(20px);
+  background: rgba(255,255,255,0.08);
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 0 40px rgba(0,0,0,0.5);
+  text-align:center;
 }
 
-input {
-    width: 90%;
-    padding: 12px;
-    margin: 10px 0;
-    border-radius: 12px;
-    border: 1px solid #ddd;
-    font-size: 14px;
-    transition: 0.3s;
+h2{margin-bottom:5px;}
+.subtitle{font-size:13px; opacity:.7; margin-bottom:20px;}
+
+/* المدخلات */
+.input-group{
+  margin:12px 0;
 }
 
-input:focus {
-    border-color: #2a5298;
-    outline: none;
-    box-shadow: 0 0 8px rgba(42,82,152,0.3);
+input{
+  width:90%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid transparent;
+  outline:none;
+  background:rgba(255,255,255,0.08);
+  color:white;
+  font-size:14px;
+  transition:0.3s;
 }
 
-button {
-    padding: 12px 25px;
-    border: none;
-    background: linear-gradient(135deg, #00c6ff, #0072ff);
-    color: white;
-    border-radius: 25px;
-    cursor: pointer;
-    font-size: 16px;
-    margin-top: 10px;
-    transition: 0.3s;
+input:focus{
+  border-color:#00f5a0;
+  box-shadow:0 0 12px rgba(0,255,200,0.7);
+  background:rgba(255,255,255,0.15);
 }
 
-button:hover {
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+input::placeholder{
+  color:rgba(255,255,255,0.6);
 }
 
-.result {
-    margin-top: 25px;
-    font-size: 22px;
-    font-weight: bold;
-    color: #1e3c72;
+/* الزر */
+button{
+  margin-top:15px;
+  padding:12px 25px;
+  border:none;
+  border-radius:30px;
+  background:linear-gradient(135deg,#00f5a0,#00d9f5);
+  cursor:pointer;
+  font-weight:bold;
+  transition:0.3s;
 }
 
-@keyframes fadeIn {
-    from {opacity: 0; transform: translateY(20px);}
-    to {opacity: 1; transform: translateY(0);}
+button:hover{
+  transform:scale(1.05);
+  box-shadow:0 0 20px rgba(0,255,200,0.6);
+}
+
+/* النتيجة */
+.value{
+  font-size:42px;
+  margin-top:20px;
+  font-weight:bold;
+}
+
+/* الشريط */
+.bar{
+  width:100%;
+  height:12px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.2);
+  margin-top:10px;
+  overflow:hidden;
+}
+
+.fill{
+  height:100%;
+  width:0%;
+  background:linear-gradient(90deg,#00f5a0,#00d9f5);
+  transition:1s;
+}
+
+.status{
+  margin-top:10px;
+  font-size:14px;
 }
 </style>
-
 </head>
 
 <body>
 
+<canvas id="bg"></canvas>
+
 <div class="container">
-    <h2>🔬 التنبؤ بإنتاج الإيثانول</h2>
+  <h2>🧪 BioEthanol Lab</h2>
+  <div class="subtitle">Fermentation Simulation System</div>
 
-    <input type="number" id="temp" placeholder="درجة الحرارة (°C)">
-    <input type="number" id="catalyst" placeholder="كمية المحفز (ml)">
-    <input type="number" id="yeast" placeholder="كمية الخميرة (g)">
-    <input type="number" id="time" placeholder="الوقت (يوم)">
+  <div class="input-group">
+    <input type="number" id="temp" placeholder="🌡️ درجة الحرارة">
+  </div>
 
-    <br>
-    <button onclick="predict()">احسب الآن</button>
+  <div class="input-group">
+    <input type="number" id="catalyst" placeholder="⚗️ كمية المحفز">
+  </div>
 
-    <div class="result" id="output"></div>
+  <div class="input-group">
+    <input type="number" id="yeast" placeholder="🍞 كمية الخميرة">
+  </div>
+
+  <div class="input-group">
+    <input type="number" id="time" placeholder="⏳ الوقت">
+  </div>
+
+  <button onclick="predict()">تشغيل النموذج</button>
+
+  <div class="value" id="value">0.00 %</div>
+
+  <div class="bar">
+    <div class="fill" id="fill"></div>
+  </div>
+
+  <div class="status" id="status"></div>
 </div>
 
 <script>
 
-function predict() {
-    let temp = parseFloat(document.getElementById("temp").value);
-    let catalyst = parseFloat(document.getElementById("catalyst").value);
-    let yeast = parseFloat(document.getElementById("yeast").value);
-    let time = parseFloat(document.getElementById("time").value);
+/* الخلفية المتحركة */
+const canvas=document.getElementById("bg");
+const ctx=canvas.getContext("2d");
+canvas.width=window.innerWidth;
+canvas.height=window.innerHeight;
 
-    if (isNaN(temp) || isNaN(catalyst) || isNaN(yeast) || isNaN(time)) {
-        document.getElementById("output").innerHTML = "أدخل كل القيم";
-        return;
+let particles=[];
+for(let i=0;i<80;i++){
+  particles.push({
+    x:Math.random()*canvas.width,
+    y:Math.random()*canvas.height,
+    r:Math.random()*2
+  });
+}
+
+function draw(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="rgba(0,255,200,0.3)";
+  particles.forEach(p=>{
+    ctx.beginPath();
+    ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+    ctx.fill();
+    p.y+=0.3;
+    if(p.y>canvas.height) p.y=0;
+  });
+  requestAnimationFrame(draw);
+}
+draw();
+
+/* 🔥 حركة الرقم */
+function animateValue(end){
+  let start=0;
+  let duration=1200;
+  let startTime=null;
+
+  function step(timestamp){
+    if(!startTime) startTime=timestamp;
+    let progress=Math.min((timestamp-startTime)/duration,1);
+
+    let value=(progress*(end-start)+start).toFixed(2);
+    document.getElementById("value").innerHTML=value+" %";
+
+    if(progress<1){
+      requestAnimationFrame(step);
     }
+  }
+  requestAnimationFrame(step);
+}
 
-    let tempEffect = 31 * Math.exp(-Math.pow((temp - 35)/10, 2));
-    let catalystEffect = 30 * Math.exp(-Math.pow((catalyst - 9)/3, 2));
-    let yeastEffect = 4 * yeast + 5;
-    let timeEffect = 60 * (1 - Math.exp(-time / 3));
+/* الحساب */
+function predict(){
+  let t=temp.value, c=catalyst.value, y=yeast.value, ti=time.value;
+  if(!t||!c||!y||!ti)return;
 
-    let ethanol = (tempEffect + catalystEffect + yeastEffect + timeEffect) / 4;
+  let tempEffect=31*Math.exp(-Math.pow((t-35)/10,2));
+  let catalystEffect=30*Math.exp(-Math.pow((c-9)/3,2));
+  let yeastEffect=4*y+5;
+  let timeEffect=60*(1-Math.exp(-ti/3));
 
-    document.getElementById("output").innerHTML =
-        "✨ النتيجة: " + ethanol.toFixed(2) + " %";
+  let ethanol=(tempEffect+catalystEffect+yeastEffect+timeEffect)/4;
+
+  /* تشغيل الحركة */
+  animateValue(ethanol);
+
+  /* الشريط */
+  let percent=Math.min(ethanol,100);
+  document.getElementById("fill").style.width=percent+"%";
+
+  /* التقييم */
+  let status="";
+  if(ethanol<30) status="🔴 إنتاج منخفض";
+  else if(ethanol<60) status="🟡 إنتاج جيد";
+  else status="🟢 إنتاج ممتاز";
+
+  document.getElementById("status").innerHTML=status;
 }
 
 </script>
